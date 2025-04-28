@@ -99,6 +99,7 @@ def filter_pdf(input_path, output_path, report_path):
             if not text.strip():
                 pix = doc[page_num].get_pixmap()
                 text = detect_text(pix)
+                print(f'Successfully scanned {page_num+1} out of {len(reader.pages)}')
             
             summary = summarize_text(text)
             found_keyword = contains_keywords(text, keywords)
@@ -141,6 +142,28 @@ def contains_keywords(text, keywords):
     
     return None  # Return None if no keyword is found
 
-input = 'LY316_FF.pdf'
-output = 'formatted_'+input
-filter_pdf(input,output, 'report_log.xlsx')
+import tkinter as tk
+from tkinter import filedialog
+
+try:
+    # Create a root Tkinter window and hide it
+    root = tk.Tk()
+    root.withdraw()  # Hide the root window
+
+    # Open a file dialog to select a PDF file
+    input_file_path = filedialog.askopenfilename(
+        title='Select a PDF File',
+        filetypes=[('PDF Files', '*.pdf')]
+    )
+
+    # Check if a file was selected
+    if input_file_path:
+        output_file_path = 'formatted_' + input_file_path.split('/')[-1]
+        report_file_path = 'report_' + input_file_path.split('/')[-1].replace('.pdf', '.xlsx')
+        filter_pdf(input_file_path, output_file_path, report_file_path)
+        print(f'The output file is generated at {output_file_path}.')
+        print(f'The report file is generated at {report_file_path}.')
+    else:
+        print("No file selected.")
+except Exception as e:
+    print(e)
