@@ -11,6 +11,7 @@ The output includes a cleaned PDF and a detailed Excel report summarizing the ac
 - Summarize page content using OpenAI's GPT models
 - Detect and filter pages based on configurable keywords
 - Generate detailed Excel reports of actions taken
+- Show time taken, number of pages processed, pages filtered out
 - Automatically expand keyword matching with synonyms (via WordNet)
 
 ## Installation
@@ -44,15 +45,62 @@ The output includes a cleaned PDF and a detailed Excel report summarizing the ac
    openai
    pillow
    tk
+   openpyxl
    ```
    Activate the virtual environment and Run the pip installation to install from requirements.txt:
    ```bash
    pip install -r requirements.txt
    ```
 ## ⚙️ Configuration
-Before running the script, ensure you have:
-- Google Cloud Vision API credentials set up (authentication).
-- OpenAI API key correctly configured inside the script (api_key value).
+
+### Google Cloud Vision API Setup
+
+1. **Create a Google Cloud Project**:
+   - Visit: [Google Cloud Console](https://console.cloud.google.com/)
+   - Create a new project (or select an existing one).
+
+2. **Enable the Vision API**:
+   - Navigate to **APIs & Services → Library**.
+   - Search for **"Vision API"** and **Enable** it.
+
+3. **Create Service Account Credentials**:
+   - Go to **APIs & Services → Credentials → Create Credentials → Service Account**.
+   - Follow the prompts to create a service account.
+   - Assign the role **"Project > Editor"** or **"Vision AI User"**.
+
+4. **Download the JSON Key File**:
+   - After creating the service account, click on it → **Keys** → **Add Key** → **Create new key** → Choose **JSON**.
+   - Save the `.json` file securely.
+
+5. **Set the environment variable**:  
+   Before running your code, set the environment variable to point to your downloaded credentials.
+
+   On **Linux/Mac**:
+
+   ```bash
+   export GOOGLE_APPLICATION_CREDENTIALS="path/to/your-key.json"
+   ```
+### OpenAI API Key Setup
+
+1. Create/Open an OpenAI Account
+
+- Go to [OpenAI Platform](https://platform.openai.com/).
+
+2. Generate an API Key
+
+- After signing in, navigate to **User Settings → API Keys**.
+- Click **Create New Secret Key**.
+- Copy and securely store your API key.
+
+3. Configure API Key in Your Project
+
+- In your `main.py`, replace the placeholder value:
+
+```python
+client = OpenAI(
+    api_key='your-openai-api-key-here'
+)
+```
 
 ⚠️ **Important:**
 For production, avoid hardcoding API keys. Use environment variables or secure vaults instead.
