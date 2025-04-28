@@ -90,7 +90,8 @@ def filter_pdf(input_path, output_path, report_path):
         for keyword in keywords:
             synonyms = get_synonyms(keyword)
             keywords_with_synonyms.extend(synonyms)
-
+        total = len(reader.pages)
+        removed = 0
         for page_num in range(len(reader.pages)):
             page = reader.pages[page_num]
             text = doc[page_num].get_text()
@@ -105,6 +106,7 @@ def filter_pdf(input_path, output_path, report_path):
             found_keyword = contains_keywords(text, keywords)
             if found_keyword:  # If a keyword is found, log it
                 reason = f"Contains keyword: {found_keyword}"
+                removed+=1
 
             if reason:  # Log the removed page and reason
                 removal_log.append({'Page Number': page_num + 1,'Summary':summary , 'Page Removed?':'Yes','Reason': reason})
@@ -119,11 +121,18 @@ def filter_pdf(input_path, output_path, report_path):
         # Write Excel report
         report_df = pd.DataFrame(removal_log)
         report_df.to_excel(report_path, index=False)
-        
-        return True
+        workbook = load_workbook(report_path)
+        worksheet = workbook.active
+
+        # Assuming the second column is 'B'
+        for row in worksheet['B']:
+            row.alignment = Alignment(wrapText=True)
+
+        workbook.save(report_path)
+        return True,total,removed
     except Exception as e:
         print(f"Error: {str(e)}")
-        return False
+        return False,total,removed
 def contains_keywords(text, keywords):
     """Check if text contains any keywords with possible intervening characters"""
     import re
@@ -160,9 +169,21 @@ try:
     if input_file_path:
         output_file_path = 'formatted_' + input_file_path.split('/')[-1]
         report_file_path = 'report_' + input_file_path.split('/')[-1].replace('.pdf', '.xlsx')
-        filter_pdf(input_file_path, output_file_path, report_file_path)
-        print(f'The output file is generated at {output_file_path}.')
-        print(f'The report file is generated at {report_file_path}.')
+        start_time = time.time()
+        success,total_pages,filtered_pages = filter_pdf(input_file_path, output_file_path, report_file_path)
+        end_time = time.time()
+        time_taken = end_time - start_time
+        mins, secs = divmod(time_taken, 60)
+        if success:
+            print("\n=== Filtering Summary ===")
+            print(f"Time taken: {int(mins)} min {secs:.2f} sec")
+            print(f"Initial number of pages: {total_pages}")
+            print(f"Number of pages filtered out: {filtered_pages}")
+            print(f"Final number of pages: {total_pages - filtered_pages}")
+            print(f'The output file is generated at {output_file_path}.')
+            print(f'The report file is generated at {report_file_path}.')
+        else:
+            print('File not processed completely')
     else:
         print("No file selected.")
 except Exception as e:
