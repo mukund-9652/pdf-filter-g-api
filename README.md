@@ -45,6 +45,10 @@ The output includes a cleaned PDF and a detailed Excel report summarizing the ac
    pillow
    tk
    ```
+   Activate the virtual environment and Run the pip installation to install from requirements.txt:
+   ```bash
+   pip install -r requirements.txt
+   ```
 ## ⚙️ Configuration
 Before running the script, ensure you have:
 - Google Cloud Vision API credentials set up (authentication).
